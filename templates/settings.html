@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Settings - Coffee Tracker</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="container">
+    <h1>Settings</h1>
+    <form action="/settings/username" method="post" style="margin-bottom:2em;">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" value="{{ username }}" required style="margin-left:1em;">
+        <button type="submit">Save</button>
+    </form>
+    <h3>Cups</h3>
+    <table style="width:100%;">
+        <thead>
+            <tr><th>Name</th><th>Size (ml)</th><th></th></tr>
+        </thead>
+        <tbody id="cups-table-body">
+        {% for cup in cups %}
+            <tr>
+                <td>{{ cup.name }}</td>
+                <td>{{ cup.size }}</td>
+                <td>
+                    <form class="delete-cup-form" data-cup-id="{{ cup.id }}" style="display:inline;">
+                        <button type="submit" style="background:#e53935;color:#fff;border:none;border-radius:4px;padding:0.3em 0.8em;cursor:pointer;">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        {% else %}
+            <tr><td colspan="3">No cups defined.</td></tr>
+        {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr class="input-row">
+                <form action="/settings/cups" method="post">
+                    <td><input type="text" name="name" placeholder="Cup name" required></td>
+                    <td><input type="number" name="size" step="0.01" min="1" required placeholder="Size (ml)"></td>
+                    <td><button type="submit">Add Cup</button></td>
+                </form>
+            </tr>
+        </tfoot>
+    </table>
+    <a href="/" style="display:inline-block;margin-top:2em;">&larr; Back to main</a>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.delete-cup-form').forEach(form => {
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const cupId = form.getAttribute('data-cup-id');
+            const formData = new FormData();
+            formData.append('cup_id', cupId);
+            const response = await fetch('/settings/cups/delete', {
+                method: 'POST',
+                body: formData
+            });
+            if (response.ok) {
+                await updateCupsTable();
+                await updateMainDropdown();
+            }
+        });
+    });
+});
+</script>
+</body>
+</html>

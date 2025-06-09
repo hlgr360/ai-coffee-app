@@ -1,0 +1,37 @@
+I would like to create an app to track my coffee habbit in python. The ui should be accessible through the web via http. The web ui should be a displaying a grid and on the top of the grid should be a table listing my coffee consumption per day. underneath should be an input row which allows me to add the amount of coffee I drank and a submit button. when I click submit the amount of coffee and the time of submission is added for that day to a sqlite database table indexed by time. Displayed is always the total amount of coffee per day. the whole app is written in python and should use pythonic best practices.
+
+Please use uv instead
+
+pip install python-multipart
+
+please add comments to key sections of the code explaining the rational. Prefix the comments with AI:
+
+is the code formatted according to the pytantic conventions
+
+lets add it
+
+how am I selecting the py interpreter
+
+I would like to add a new button on the top right for settings backed by settings table in the sqllite database. Each table should contain an additional column for an username, preparing the app for being used by multiple users. You can reset the existing database for those schema changes. the first changable setting should be to customize the username (you can right now set hlgr360 as default). second settings should allow me to define various set of cups, each with a custom name and an individual size. The various custom cups should be displayed in a table with the input to add a new cup below the table. The settings menu should be a flyout menu with a close button. Change the input on tzhe main page into a dropdown to select one of the predefined cups but add the configured amount to the database. define one standard size cup as a default setting. Refact the code accordingly to keep the code clean and focusssed
+
+there is an error (error pasted here)
+
+adding a cup in settings throws an error (errors pasted here)
+
+upon selecting the add cup the page chnages to the settings app - please correct it so that the settings up remains a flyout from the main app and adding a cup only changes the table
+
+yes, please refactor it accordingly
+
+when I add a new cup and close the settings flyout, the dropdown on the main page does not show the updated setting, please reload the dropdown after updating the settings page
+
+in the settings page add a delete button behind each cup entry to allow me to delete that entry
+
+I do not see the delete button
+
+I can not find the delete button
+
+can you change the button with an trashbin icon
+
+please create a PR request with all the changes and submit it, summarize in the pr request in a concise and and brief manner the instructions so far
+
+yes - this is a github repo and the github cli command is installed

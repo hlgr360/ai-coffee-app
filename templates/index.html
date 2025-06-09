@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Coffee Tracker</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2em; background: #f7f7f7; }
+        h1 { text-align: center; }
+        .settings-btn { float: right; margin-top: 1em; margin-right: 1em; background: #4caf50; color: #fff; border: none; border-radius: 4px; padding: 0.5em 1.5em; cursor: pointer; }
+        .settings-btn:hover { background: #388e3c; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 2em; background: #fff; }
+        th, td { border: 1px solid #ddd; padding: 0.75em; text-align: center; }
+        th { background: #e0e0e0; }
+        tr:nth-child(even) { background: #f2f2f2; }
+        .input-row { background: #fafafa; }
+        .input-row select { width: 100%; padding: 0.5em; }
+        .input-row button { padding: 0.5em 1.5em; background: #4caf50; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+        .input-row button:hover { background: #388e3c; }
+        .container { max-width: 600px; margin: 0 auto; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <button class="settings-btn" onclick="openSettings()">Settings</button>
+    <h1>Coffee Tracker</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Total Coffee (ml)</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for row in daily_totals %}
+            <tr>
+                <td>{{ row.day }}</td>
+                <td>{{ '%.2f' % row.total }}</td>
+            </tr>
+        {% else %}
+            <tr><td colspan="2">No data yet.</td></tr>
+        {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr class="input-row">
+                <form action="/add" method="post">
+                    <td colspan="1">
+                        <select name="cup_id" required>
+                            {% for cup in cups %}
+                                <option value="{{ cup.id }}" {% if cup.id == default_cup %}selected{% endif %}>{{ cup.name }} ({{ cup.size }} ml)</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td colspan="1">
+                        <button type="submit">Add Coffee</button>
+                    </td>
+                </form>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+<!-- Settings Flyout -->
+<div id="settings-flyout" style="display:none; position:fixed; top:0; right:0; width:400px; height:100%; background:#fff; box-shadow:-2px 0 8px rgba(0,0,0,0.2); z-index:1000; padding:2em;">
+    <button onclick="closeSettings()" style="float:right; background:#e53935; color:#fff; border:none; border-radius:4px; padding:0.5em 1.5em; cursor:pointer;">Close</button>
+    <h2>Settings</h2>
+    <form id="username-form" action="/settings/username" method="post" style="margin-bottom:2em;">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" value="{{ username }}" required style="margin-left:1em;">
+        <button type="submit">Save</button>
+    </form>
+    <h3>Cups</h3>
+    <table style="width:100%;">
+        <thead>
+            <tr><th>Name</th><th>Size (ml)</th><th>Action</th></tr>
+        </thead>
+        <tbody id="cups-table-body">
+        {% for cup in cups %}
+            <tr>
+                <td>{{ cup.name }}</td>
+                <td>{{ cup.size }}</td>
+                <td>
+                    <button onclick="deleteCup('{{ cup.id }}')" title="Delete" style="background:transparent;border:none;cursor:pointer;padding:0.3em 0.8em;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24"><path fill="#e53935" d="M7 21q-.825 0-1.413-.588T5 19V7H4V5h5V4h6v1h5v2h-1v12q0 .825-.588 1.413T17 21H7Zm10-14H7v12h10V7ZM9 17h2v-7H9v7Zm4 0h2v-7h-2v7Z"/></svg>
+                    </button>
+                </td>
+            </tr>
+        {% else %}
+            <tr><td colspan="3">No cups defined.</td></tr>
+        {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr class="input-row">
+                <td colspan="3">
+                    <form id="add-cup-form" onsubmit="return addCup(event)">
+                        <input type="text" name="name" placeholder="Cup name" required style="width:40%;">
+                        <input type="number" name="size" step="0.01" min="1" required placeholder="Size (ml)" style="width:40%;">
+                        <button type="submit">Add Cup</button>
+                    </form>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+<script>
+function openSettings() {
+    document.getElementById('settings-flyout').style.display = 'block';
+}
+function closeSettings() {
+    document.getElementById('settings-flyout').style.display = 'none';
+}
+async function addCup(event) {
+    event.preventDefault();
+    const form = document.getElementById('add-cup-form');
+    const formData = new FormData(form);
+    const response = await fetch('/settings/cups', {
+        method: 'POST',
+        body: formData
+    });
+    if (response.ok) {
+        await updateCupsTable();
+        await updateMainDropdown();
+        form.reset();
+    }
+    return false;
+}
+async function deleteCup(cupId) {
+    if (!confirm('Delete this cup?')) return;
+    const formData = new FormData();
+    formData.append('cup_id', cupId);
+    const response = await fetch('/settings/cups/delete', {
+        method: 'POST',
+        body: formData
+    });
+    if (response.ok) {
+        await updateCupsTable();
+        await updateMainDropdown();
+    }
+}
+async function updateCupsTable() {
+    const resp = await fetch('/api/cups');
+    if (!resp.ok) return;
+    const cups = await resp.json();
+    const tbody = document.getElementById('cups-table-body');
+    tbody.innerHTML = '';
+    if (cups.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3">No cups defined.</td></tr>';
+    } else {
+        for (const cup of cups) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${cup.name}</td><td>${cup.size}</td><td><button onclick="deleteCup(${cup.id})" title="Delete" style="background:transparent;border:none;cursor:pointer;padding:0.3em 0.8em;"><svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='none' viewBox='0 0 24 24'><path fill='#e53935' d='M7 21q-.825 0-1.413-.588T5 19V7H4V5h5V4h6v1h5v2h-1v12q0 .825-.588 1.413T17 21H7Zm10-14H7v12h10V7ZM9 17h2v-7H9v7Zm4 0h2v-7h-2v7Z'/></svg></button></td>`;
+            tbody.appendChild(tr);
+        }
+    }
+}
+async function updateMainDropdown() {
+    const resp = await fetch('/api/cups');
+    if (!resp.ok) return;
+    const cups = await resp.json();
+    const dropdowns = document.getElementsByName('cup_id');
+    for (const dropdown of dropdowns) {
+        dropdown.innerHTML = '';
+        for (const cup of cups) {
+            const option = document.createElement('option');
+            option.value = cup.id;
+            option.textContent = `${cup.name} (${cup.size} ml)`;
+            dropdown.appendChild(option);
+        }
+    }
+}
+</script>
+</body>
+</html>
