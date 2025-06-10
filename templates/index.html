@@ -64,7 +64,7 @@
 <div id="settings-flyout" style="display:none; position:fixed; top:0; right:0; width:400px; height:100%; background:#fff; box-shadow:-2px 0 8px rgba(0,0,0,0.2); z-index:1000; padding:2em;">
     <button onclick="closeSettings()" style="float:right; background:#e53935; color:#fff; border:none; border-radius:4px; padding:0.5em 1.5em; cursor:pointer;">Close</button>
     <h2>Settings</h2>
-    <form id="username-form" action="/settings/username" method="post" style="margin-bottom:2em;">
+    <form id="username-form" onsubmit="return saveUsername(event)" style="margin-bottom:2em;">
         <label for="username">Username:</label>
         <input type="text" id="username" name="username" value="{{ username }}" required style="margin-left:1em;">
         <button type="submit">Save</button>
@@ -167,6 +167,23 @@ async function updateMainDropdown() {
             dropdown.appendChild(option);
         }
     }
+}
+async function saveUsername(event) {
+    event.preventDefault();
+    const form = document.getElementById('username-form');
+    const formData = new FormData(form);
+    const response = await fetch('/settings/username/json', {
+        method: 'POST',
+        body: formData
+    });
+    if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+            // Optionally update username in UI
+            alert('Username updated!');
+        }
+    }
+    return false;
 }
 </script>
 </body>

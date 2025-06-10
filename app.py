@@ -150,3 +150,12 @@ async def api_entries():
 async def api_cups():
     user = await get_current_username()
     return await get_cups(user)
+
+@app.post("/settings/username/json")
+async def update_username_json(username: str = Form(...)):
+    async with aiosqlite.connect(DB_PATH) as db:
+        await db.execute('UPDATE settings SET username = ? WHERE id = 1', (username,))
+        await db.execute('UPDATE cups SET user = ? WHERE user != ?', (username, username))
+        await db.execute('UPDATE coffee SET user = ? WHERE user != ?', (username, username))
+        await db.commit()
+    return {"success": True, "username": username}
