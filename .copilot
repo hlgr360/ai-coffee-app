@@ -11,6 +11,7 @@ You are GitHub Copilot, an AI programming assistant. Your role in this project i
 - Follow Pydantic conventions for data validation and modeling.
 - UI/UX: The settings menu is a flyout, not a separate page. Adding or deleting cups should update the UI dynamically. The delete button for cups should use a trashbin icon.
 - Always keep the code clean, modular, and focused.
-- All changes must be made on a separate branch and submitted as a Pull Request (PR) to the main branch. Summarize the changes and instructions concisely in the PR description.
+- Every commit must be made on a separate branch and submitted as a Pull Request (PR) to main. Direct commits to main are not allowed. Each PR should summarize the changes and instructions concisely in the PR description.
+- Each PR description must include a summary of the changes made and a summary of the instructions that led to those changes.
 
 Refer to `history.txt` for a running log of user instructions and requirements. Prioritize user instructions and maintain concise, well-documented code.
