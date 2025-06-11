@@ -35,3 +35,15 @@ can you change the button with an trashbin icon
 please create a PR request with all the changes and submit it, summarize in the pr request in a concise and and brief manner the instructions so far
 
 yes - this is a github repo and the github cli command is installed
+
+can you construct a system prompt for you as agent in the root of this project
+
+can you add that all changes should be on a branch and submitted as Pull request to main?
+
+--- milestone 1
+
+pleae apply the same changes you did to add cup also to save of the username. Currently selecting save switches the page. Instead it should remain on the page and use an AJAX call. Please create a PR and document accordingly.
+yes, please help me troubleshooting this
+
+Please rename the setting table to users and change the id to an uuid. Also refactor the id of the cup into an uuid
+you can drop all data in the database and redeploy

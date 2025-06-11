@@ -3,10 +3,13 @@ DROP TABLE IF EXISTS coffee;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS cups;
 
--- Create users table for user settings
+-- Create users table for user settings and authentication
 CREATE TABLE users (
     id TEXT PRIMARY KEY, -- UUID
-    username TEXT NOT NULL
+    username TEXT NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL,
+    is_admin INTEGER NOT NULL DEFAULT 0,
+    must_change_password INTEGER NOT NULL DEFAULT 0
 );
 
 -- Create cups table for custom cup definitions
@@ -18,7 +21,7 @@ CREATE TABLE cups (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
--- Create coffee table with username for multi-user support
+-- Create coffee table with user_id for multi-user support
 CREATE TABLE coffee (
     id TEXT PRIMARY KEY, -- UUID
     user_id TEXT NOT NULL,
@@ -29,6 +32,14 @@ CREATE TABLE coffee (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
--- Insert default user and default cup
-INSERT INTO users (id, username) VALUES ('00000000-0000-0000-0000-000000000001', 'hlgr360');
-INSERT INTO cups (id, user_id, name, size) VALUES ('00000000-0000-0000-0000-000000000101', '00000000-0000-0000-0000-000000000001', 'Standard Cup', 200);
+-- Insert default admin user (password: admin, must change on first login)
+INSERT INTO users (id, username, password_hash, is_admin, must_change_password) VALUES (
+    '00000000-0000-0000-0000-000000000000',
+    'admin',
+    '$2b$12$2tL2zP9YzrZMdixP4.kVKusIAbL.NQ9n8fG5kxC0o5ElxSTWS2uqy',
+    1,
+    1
+);
+
+-- Insert default cup for admin
+INSERT INTO cups (id, user_id, name, size) VALUES ('00000000-0000-0000-0000-000000000101', '00000000-0000-0000-0000-000000000000', 'Standard Cup', 200);

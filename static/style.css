@@ -14,3 +14,26 @@ tr:nth-child(even) { background: #f2f2f2; }
 .container { max-width: 600px; margin: 0 auto; }
 #settings-flyout { display:none; position:fixed; top:0; right:0; width:400px; height:100%; background:#fff; box-shadow:-2px 0 8px rgba(0,0,0,0.2); z-index:1000; padding:2em; }
 #settings-flyout button { margin-top: 1em; }
+.actions-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 48px;
+    height: 100%;
+    padding: 0 !important;
+}
+.bin-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0.3em 0.8em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+.actions-cell svg {
+    display: block;
+    margin: 0 auto;
+}
