@@ -93,18 +93,20 @@ async def index(request: Request, session_id: Optional[str] = Cookie(None)):
 
 # AI: Handle form submission to add a new coffee entry
 @app.post("/add", response_class=RedirectResponse)
-async def add_coffee(cup_id: str = Form(...)):
-    user = await get_current_user()
+async def add_coffee(request: Request, cup_id: str = Form(...), session_id: Optional[str] = Cookie(None)):
+    session_user = await get_current_session_user(session_id)
+    if not session_user:
+        return RedirectResponse(url="/login", status_code=303)
     async with aiosqlite.connect(DB_PATH) as db:
         # Get cup size
-        cursor = await db.execute('SELECT size FROM cups WHERE id = ? AND user_id = ?', (cup_id, user.id))
+        cursor = await db.execute('SELECT size FROM cups WHERE id = ? AND user_id = ?', (cup_id, session_user["id"]))
         row = await cursor.fetchone()
         if not row:
             return RedirectResponse(url="/", status_code=303)
         amount = row[0]
         now = datetime.now().isoformat()
         entry_id = str(uuid.uuid4())
-        await db.execute("INSERT INTO coffee (id, user_id, amount, cup_id, timestamp) VALUES (?, ?, ?, ?, ?)", (entry_id, user.id, amount, cup_id, now))
+        await db.execute("INSERT INTO coffee (id, user_id, amount, cup_id, timestamp) VALUES (?, ?, ?, ?, ?)", (entry_id, session_user["id"], amount, cup_id, now))
         await db.commit()
     return RedirectResponse(url="/", status_code=303)
 
