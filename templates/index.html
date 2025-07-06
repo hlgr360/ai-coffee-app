@@ -23,15 +23,15 @@
 <body>
 <div class="container">
     <div style="display:flex;justify-content:flex-end;align-items:center;margin-bottom:1em;gap:0.5em;">
-        <button class="icon-btn" onclick="openSettings()" title="Settings" style="background:transparent;border:none;cursor:pointer;padding:0.4em;display:flex;align-items:center;justify-content:center;">
+        <button id="settings-icon" class="icon-btn" onclick="openSettings()" title="Settings" style="background:transparent;border:none;cursor:pointer;padding:0.4em;display:flex;align-items:center;justify-content:center;">
             <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24"><path fill="#4caf50" d="M19.14,12.94c0-.32,0-.65,0-1s0-.68,0-1l2.11-1.65a.5.5,0,0,0,.12-.65l-2-3.46a.5.5,0,0,0-.61-.22l-2.49,1a7,7,0,0,0-1.7-1l-.38-2.65A.5.5,0,0,0,13,2H11a.5.5,0,0,0-.5.42l-.38,2.65a7,7,0,0,0-1.7,1l-2.49-1a.5.5,0,0,0-.61.22l-2,3.46a.5.5,0,0,0,.12.65L4.86,10c0,.32,0,.65,0,1s0,.68,0,1L2.75,13.65a.5.5,0,0,0-.12.65l2,3.46a.5.5,0,0,0,.61.22l2.49-1a7,7,0,0,0,1.7,1l.38,2.65A.5.5,0,0,0,11,22h2a.5.5,0,0,0,.5-.42l.38-2.65a7,7,0,0,0,1.7-1l2.49,1a.5.5,0,0,0,.61-.22l2-3.46a.5.5,0,0,0-.12-.65ZM12,15.5A3.5,3.5,0,1,1,15.5,12,3.5,3.5,0,0,1,12,15.5Z"/></svg>
         </button>
-        <a href="/logout" title="Logout" class="icon-btn" style="background:transparent;border:none;cursor:pointer;padding:0.4em;display:flex;align-items:center;justify-content:center;">
+        <a id="logout-icon" href="/logout" title="Logout" class="icon-btn" style="background:transparent;border:none;cursor:pointer;padding:0.4em;display:flex;align-items:center;justify-content:center;">
             <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24"><path fill="#43a047" d="M16 13v-2H7V8l-5 4 5 4v-3h9zm3-10H5c-1.1 0-2 .9-2 2v6h2V5h14v14H5v-6H3v6c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
         </a>
     </div>
     <h1>Coffee Tracker</h1>
-    <table>
+    <table id="daily-coffee-table">
         <thead>
             <tr>
                 <th>Date</th>
@@ -50,98 +50,51 @@
         </tbody>
         <tfoot>
             <tr class="input-row">
-                <form action="/add" method="post">
+                <form id="add-coffee-form" action="/add" method="post">
                     <td colspan="1">
-                        <select name="cup_id" required>
+                        <select id="cup-select" name="cup_id" required>
                             {% for cup in cups %}
                                 <option value="{{ cup.id }}" {% if cup.id == default_cup %}selected{% endif %}>{{ cup.name }} ({{ cup.size }} ml)</option>
                             {% endfor %}
                         </select>
                     </td>
                     <td colspan="1">
-                        <button type="submit">Add Coffee</button>
+                        <button id="add-coffee-btn" type="submit">Add</button>
                     </td>
                 </form>
             </tr>
         </tfoot>
     </table>
-</div>
-
-<!-- Settings Flyout -->
-<div id="settings-flyout" style="display:none; position:fixed; top:0; right:0; width:400px; height:100%; background:#fff; box-shadow:-2px 0 8px rgba(0,0,0,0.2); z-index:1000; padding:2em;">
-    <button onclick="closeSettings()" style="float:right; background:#e53935; color:#fff; border:none; border-radius:4px; padding:0.5em 1.5em; cursor:pointer;">Close</button>
-    <h2>Settings</h2>
-    <form id="username-form" onsubmit="return saveUsername(event)" style="margin-bottom:2em;">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" value="{{ username }}" required style="margin-left:1em;">
-        <button type="submit">Save</button>
-    </form>
-    <h3>Cups</h3>
-    <table style="width:100%;">
-        <thead>
-            <tr><th>Name</th><th>Size (ml)</th><th>Action</th></tr>
-        </thead>
-        <tbody id="cups-table-body">
-        {% for cup in cups %}
-            <tr>
-                <td>{{ cup.name }}</td>
-                <td>{{ cup.size }}</td>
-                <td>
-                    <button onclick="deleteCup('{{ cup.id }}')" title="Delete" style="background:transparent;border:none;cursor:pointer;padding:0.3em 0.8em;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24"><path fill="#e53935" d="M7 21q-.825 0-1.413-.588T5 19V7H4V5h5V4h6v1h5v2h-1v12q0 .825-.588 1.413T17 21H7Zm10-14H7v12h10V7ZM9 17h2v-7H9v7Zm4 0h2v-7h-2v7Z"/></svg>
-                    </button>
-                </td>
-            </tr>
-        {% else %}
-            <tr><td colspan="3">No cups defined.</td></tr>
-        {% endfor %}
-        </tbody>
-        <tfoot>
-            <tr class="input-row">
-                <td colspan="3">
-                    <form id="add-cup-form" onsubmit="return addCup(event)">
-                        <input type="text" name="name" placeholder="Cup name" required style="width:40%;">
-                        <input type="number" name="size" step="0.01" min="1" required placeholder="Size (ml)" style="width:40%;">
-                        <button type="submit">Add Cup</button>
-                    </form>
-                </td>
-            </tr>
-        </tfoot>
-    </table>
-    {% if is_admin %}
-    <h3>Users</h3>
-    <table style="width:100%; margin-bottom:2em;">
-        <thead>
-            <tr><th>Username</th><th>Admin</th><th>Actions</th></tr>
-        </thead>
-        <tbody id="users-table-body">
-        <!-- User rows will be rendered by JS -->
-        </tbody>
-        <tfoot>
-            <tr class="input-row">
-                <td colspan="3" style="padding:0.5em 0;">
-                    <form id="add-user-form" onsubmit="return addUser(event)" style="display:flex;gap:0.5em;align-items:center;justify-content:center;flex-wrap:wrap;">
-                        <input type="text" id="new-username" placeholder="New username" required style="flex:2;min-width:0;">
-                        <input type="password" id="new-password" placeholder="Password" required style="flex:2;min-width:0;">
-                        <label style="flex:1;display:flex;align-items:center;gap:0.3em;justify-content:center;min-width:0;">
-                            <input type="checkbox" id="new-is-admin"> Admin
-                        </label>
-                    </form>
-                    <div style="display:flex;justify-content:center;margin-top:0.5em;">
-                        <button id="add-user-btn" type="submit" form="add-user-form" style="min-width:120px;">Add User</button>
-                    </div>
-                </td>
-            </tr>
-        </tfoot>
-    </table>
-    {% endif %}
+    <div id="settings-flyout" style="display:none;"></div>
 </div>
 <script>
-function openSettings() {
-    document.getElementById('settings-flyout').style.display = 'block';
+async function openSettings() {
+    const flyout = document.getElementById('settings-flyout');
+    const resp = await fetch('/settings', { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+    if (resp.ok) {
+        const html = await resp.text();
+        flyout.innerHTML = `
+            <div id="settings-flyout-modal" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.3);z-index:1000;display:flex;align-items:center;justify-content:center;">
+                <div style="background:#fff;padding:2em;max-width:700px;width:100%;border-radius:8px;position:relative;max-height:90vh;overflow:auto;">
+                    ${html}
+                </div>
+            </div>`;
+        flyout.style.display = 'block';
+        // Re-bind event handlers and update tables for dynamic content
+        if (document.getElementById('add-user-btn')) {
+            document.getElementById('add-user-btn').onclick = addUser;
+            updateUsersTable();
+        }
+        if (document.getElementById('add-cup-form')) {
+            document.getElementById('add-cup-form').onsubmit = addCup;
+            updateCupsTable();
+        }
+    }
 }
 function closeSettings() {
-    document.getElementById('settings-flyout').style.display = 'none';
+    const flyout = document.getElementById('settings-flyout');
+    flyout.style.display = 'none';
+    flyout.innerHTML = '';
 }
 async function addCup(event) {
     event.preventDefault();

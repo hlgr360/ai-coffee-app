@@ -1,0 +1,43 @@
+<h1>Settings</h1>
+<form id="username-form" onsubmit="return saveUsername(event)" style="margin-bottom:2em;">
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username" value="{{ username }}" required style="margin-left:1em;">
+    <button type="submit">Save</button>
+</form>
+<h3>Cups</h3>
+<table id="cups-table" style="width:100%;">
+    <thead>
+        <tr><th>Name</th><th>Size (ml)</th><th></th></tr>
+    </thead>
+    <tbody id="cups-table-body">
+    <!-- Cup rows will be rendered by JS -->
+    </tbody>
+    <tfoot>
+        <tr class="input-row">
+            <form id="add-cup-form" onsubmit="return addCup(event)">
+                <td><input type="text" name="name" id="add-cup-name" placeholder="Cup name" required></td>
+                <td><input type="number" name="size" id="add-cup-size" step="0.01" min="1" required placeholder="Size (ml)"></td>
+                <td><button type="submit" id="add-cup-btn">Add Cup</button></td>
+            </form>
+        </tr>
+    </tfoot>
+</table>
+{% if is_admin %}
+<h3>Users</h3>
+<table id="user-management-table" style="width:100%; margin-bottom:2em;">
+    <thead>
+        <tr><th>Username</th><th>Admin</th><th>Actions</th></tr>
+    </thead>
+    <tbody id="users-table-body">
+    <!-- User rows will be rendered by JS -->
+    </tbody>
+    <tfoot>
+        <tr class="input-row">
+            <td><input type="text" id="new-username" name="new_username" placeholder="New username" required></td>
+            <td><input type="checkbox" id="new-is-admin" name="new_is_admin"> Admin</td>
+            <td><input type="password" id="new-password" name="new_password" placeholder="Password" required> <button id="add-user-btn">Add User</button></td>
+        </tr>
+    </tfoot>
+</table>
+{% endif %}
+<button id="close-settings-btn" onclick="closeSettings()" style="margin-top:2em;">Close</button>

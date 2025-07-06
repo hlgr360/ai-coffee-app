@@ -3,19 +3,26 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 import aiosqlite
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import List, Dict, Optional
 from pydantic import BaseModel
 import uuid
 import bcrypt
 import secrets
+import os
+import itsdangerous
 
 # AI: Create FastAPI app instance
 app = FastAPI()
 # AI: Set up Jinja2 templates directory for HTML rendering
 templates = Jinja2Templates(directory="templates")
-# AI: SQLite database file path
-DB_PATH = "coffee.db"
+# AI: SQLite database file path (read from env for testability)
+DB_PATH = os.environ.get("COFFEE_DB_PATH", "coffee.db")
+SECRET_KEY = os.environ.get("SESSION_SECRET_KEY", "dev-secret-key")
+signer = itsdangerous.URLSafeSerializer(SECRET_KEY, salt="session")
+
+def get_db_path():
+    return os.environ.get("COFFEE_DB_PATH", "coffee.db")
 
 # AI: Mount static files for CSS/JS
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -41,7 +48,7 @@ class User(BaseModel):
 
 # AI: Helper to get current user (from session or fallback)
 async def get_current_user():
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with aiosqlite.connect(get_db_path()) as db:
         cursor = await db.execute('SELECT id, username, is_admin, must_change_password FROM users LIMIT 1')
         row = await cursor.fetchone()
         if row:
@@ -50,7 +57,7 @@ async def get_current_user():
 
 # AI: Get all cups for the current user
 async def get_cups(user_id: str) -> List[Cup]:
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with aiosqlite.connect(get_db_path()) as db:
         cursor = await db.execute('SELECT id, user_id, name, size FROM cups WHERE user_id = ?', (user_id,))
         rows = await cursor.fetchall()
         return [Cup(id=row[0], user_id=row[1], name=row[2], size=row[3]) for row in rows]
@@ -62,7 +69,7 @@ async def get_default_cup(user_id: str) -> Optional[Cup]:
 
 # AI: Query the database for total coffee consumed per day (last 30 days)
 async def get_daily_totals(user_id: str) -> List[Dict]:
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with aiosqlite.connect(get_db_path()) as db:
         cursor = await db.execute('''
             SELECT date(timestamp) as day, SUM(amount) as total
             FROM coffee WHERE user_id = ?
@@ -97,7 +104,7 @@ async def add_coffee(request: Request, cup_id: str = Form(...), session_id: Opti
     session_user = await get_current_session_user(session_id)
     if not session_user:
         return RedirectResponse(url="/login", status_code=303)
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with aiosqlite.connect(get_db_path()) as db:
         # Get cup size
         cursor = await db.execute('SELECT size FROM cups WHERE id = ? AND user_id = ?', (cup_id, session_user["id"]))
         row = await cursor.fetchone()
@@ -118,6 +125,18 @@ async def settings(request: Request, session_id: Optional[str] = Cookie(None)):
         return RedirectResponse(url="/login", status_code=303)
     cups = await get_cups(session_user["id"])
     users = await get_all_users() if session_user["is_admin"] else []
+    ajax_header = request.headers.get("x-requested-with")
+    print(f"/settings called, X-Requested-With: {ajax_header}")
+    if ajax_header == "XMLHttpRequest":
+        print("Returning settings_flyout.html (AJAX)")
+        return templates.TemplateResponse("settings_flyout.html", {
+            "request": request,
+            "username": session_user["username"],
+            "cups": cups,
+            "is_admin": session_user["is_admin"],
+            "users": users
+        })
+    print("Returning settings.html (full page)")
     return templates.TemplateResponse("settings.html", {
         "request": request,
         "username": session_user["username"],
@@ -130,7 +149,7 @@ async def settings(request: Request, session_id: Optional[str] = Cookie(None)):
 @app.post("/settings/username", response_class=RedirectResponse)
 async def update_username(username: str = Form(...)):
     user = await get_current_user()
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with aiosqlite.connect(get_db_path()) as db:
         await db.execute('UPDATE users SET username = ? WHERE id = ?', (username, user.id))
         await db.commit()
     return RedirectResponse(url="/settings", status_code=303)
@@ -140,7 +159,7 @@ async def update_username(username: str = Form(...)):
 async def add_cup(name: str = Form(...), size: float = Form(...)):
     user = await get_current_user()
     cup_id = str(uuid.uuid4())
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with aiosqlite.connect(get_db_path()) as db:
         await db.execute('INSERT INTO cups (id, user_id, name, size) VALUES (?, ?, ?, ?)', (cup_id, user.id, name, size))
         await db.commit()
     return RedirectResponse(url="/settings", status_code=303)
@@ -149,7 +168,7 @@ async def add_cup(name: str = Form(...), size: float = Form(...)):
 @app.post("/settings/cups/delete", response_class=RedirectResponse)
 async def delete_cup(cup_id: str = Form(...)):
     user = await get_current_user()
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with aiosqlite.connect(get_db_path()) as db:
         await db.execute('DELETE FROM cups WHERE id = ? AND user_id = ?', (cup_id, user.id))
         await db.commit()
     return RedirectResponse(url="/settings", status_code=303)
@@ -158,7 +177,7 @@ async def delete_cup(cup_id: str = Form(...)):
 @app.get("/api/entries", response_model=List[CoffeeEntry])
 async def api_entries():
     user = await get_current_user()
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with aiosqlite.connect(get_db_path()) as db:
         cursor = await db.execute('SELECT user_id, amount, cup_id, timestamp FROM coffee WHERE user_id = ? ORDER BY timestamp DESC', (user.id,))
         rows = await cursor.fetchall()
         return [CoffeeEntry(user_id=row[0], amount=row[1], cup_id=row[2], timestamp=row[3]) for row in rows]
@@ -172,17 +191,16 @@ async def api_cups():
 @app.post("/settings/username/json")
 async def update_username_json(username: str = Form(...)):
     user = await get_current_user()
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with aiosqlite.connect(get_db_path()) as db:
         await db.execute('UPDATE users SET username = ? WHERE id = ?', (username, user.id))
         await db.commit()
     return {"success": True, "username": username}
 
 # AI: Session management helpers
 SESSION_COOKIE = "session_id"
-sessions = {}
 
 async def get_user_by_username(username: str):
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with aiosqlite.connect(get_db_path()) as db:
         cursor = await db.execute('SELECT id, username, password_hash, is_admin, must_change_password FROM users WHERE username = ?', (username,))
         row = await cursor.fetchone()
         if row:
@@ -191,7 +209,7 @@ async def get_user_by_username(username: str):
                 "username": row[1],
                 "password_hash": row[2],
                 "is_admin": bool(row[3]),
-                "must_change_password": bool(row[4])
+                "must_change_password": bool(int(row[4]))
             }
         return None
 
@@ -202,10 +220,20 @@ async def hash_password(plain: str) -> str:
     return bcrypt.hashpw(plain.encode(), bcrypt.gensalt()).decode()
 
 async def get_current_session_user(session_id: Optional[str] = Cookie(None)):
-    user_id = sessions.get(session_id)
-    if not user_id:
+    if not session_id:
         return None
-    async with aiosqlite.connect(DB_PATH) as db:
+    now = datetime.utcnow().isoformat()
+    async with aiosqlite.connect(get_db_path()) as db:
+        cursor = await db.execute('SELECT user_id, expires_at FROM sessions WHERE session_id = ?', (session_id,))
+        row = await cursor.fetchone()
+        if not row:
+            return None
+        user_id, expires_at = row
+        if expires_at < now:
+            # Session expired, delete it
+            await db.execute('DELETE FROM sessions WHERE session_id = ?', (session_id,))
+            await db.commit()
+            return None
         cursor = await db.execute('SELECT id, username, is_admin, must_change_password FROM users WHERE id = ?', (user_id,))
         row = await cursor.fetchone()
         if row:
@@ -213,7 +241,7 @@ async def get_current_session_user(session_id: Optional[str] = Cookie(None)):
                 "id": row[0],
                 "username": row[1],
                 "is_admin": bool(row[2]),
-                "must_change_password": bool(row[3])
+                "must_change_password": bool(int(row[3]))
             }
     return None
 
@@ -227,27 +255,38 @@ async def login(request: Request, response: Response, username: str = Form(...),
     user = await get_user_by_username(username)
     if not user or not await verify_password(password, user["password_hash"]):
         return templates.TemplateResponse("login.html", {"request": request, "error": "Invalid credentials"})
-    # Create session
-    session_id = secrets.token_urlsafe(32)
-    sessions[session_id] = user["id"]
-    response = RedirectResponse(url="/", status_code=303)
-    response.set_cookie(key=SESSION_COOKIE, value=session_id, httponly=True)
-    # Force password change if required
+    # Clean up expired sessions
+    now = datetime.utcnow()
+    expires = now + timedelta(days=7)
+    async with aiosqlite.connect(get_db_path()) as db:
+        await db.execute('DELETE FROM sessions WHERE expires_at < ?', (now.isoformat(),))
+        # Create new session
+        session_id = secrets.token_urlsafe(32)
+        await db.execute(
+            'INSERT INTO sessions (session_id, user_id, created_at, expires_at) VALUES (?, ?, ?, ?)',
+            (session_id, user["id"], now.isoformat(), expires.isoformat())
+        )
+        await db.commit()
     if user["must_change_password"]:
         response = RedirectResponse(url="/settings/password", status_code=303)
         response.set_cookie(key=SESSION_COOKIE, value=session_id, httponly=True)
+        return response
+    response = RedirectResponse(url="/", status_code=303)
+    response.set_cookie(key=SESSION_COOKIE, value=session_id, httponly=True)
     return response
 
 @app.get("/logout")
 async def logout(response: Response, session_id: Optional[str] = Cookie(None)):
-    if session_id in sessions:
-        del sessions[session_id]
+    if session_id:
+        async with aiosqlite.connect(get_db_path()) as db:
+            await db.execute('DELETE FROM sessions WHERE session_id = ?', (session_id,))
+            await db.commit()
     response = RedirectResponse(url="/login", status_code=303)
     response.delete_cookie(SESSION_COOKIE)
     return response
 
 async def get_all_users():
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with aiosqlite.connect(get_db_path()) as db:
         cursor = await db.execute('SELECT id, username, is_admin, must_change_password FROM users')
         rows = await cursor.fetchall()
         return [User(id=row[0], username=row[1], is_admin=bool(row[2]), must_change_password=bool(row[3])) for row in rows]
@@ -266,14 +305,14 @@ async def password_change(request: Request, response: Response, new_password: st
     if not session_user:
         return RedirectResponse(url="/login", status_code=303)
     hashed = await hash_password(new_password)
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with aiosqlite.connect(get_db_path()) as db:
         await db.execute('UPDATE users SET password_hash = ?, must_change_password = 0 WHERE id = ?', (hashed, session_user["id"]))
         await db.commit()
     return RedirectResponse(url="/", status_code=303)
 
 # AI: Helper to add default settings (e.g., standard cup) for a new user
 async def add_default_settings_for_user(user_id: str):
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with aiosqlite.connect(get_db_path()) as db:
         # Add a standard cup (200ml) for the new user
         cup_id = str(uuid.uuid4())
         await db.execute('INSERT INTO cups (id, user_id, name, size) VALUES (?, ?, ?, ?)', (cup_id, user_id, 'Standard Cup', 200))
@@ -289,8 +328,8 @@ async def add_user(request: Request, username: str = Form(...), password: str = 
     hashed = await hash_password(password)
     is_admin_flag = 1 if is_admin else 0
     try:
-        async with aiosqlite.connect(DB_PATH) as db:
-            await db.execute('INSERT INTO users (id, username, password_hash, is_admin, must_change_password) VALUES (?, ?, ?, ?, 0)', (user_id, username, hashed, is_admin_flag))
+        async with aiosqlite.connect(get_db_path()) as db:
+            await db.execute('INSERT INTO users (id, username, password_hash, is_admin, must_change_password) VALUES (?, ?, ?, ?, 1)', (user_id, username, hashed, is_admin_flag))
             await db.commit()
         # Add default settings (e.g., standard cup) for the new user
         await add_default_settings_for_user(user_id)
@@ -307,7 +346,7 @@ async def delete_user(request: Request, user_id: str = Form(...), session_id: Op
     # Prevent deleting the last admin or self
     if user_id == session_user["id"]:
         return RedirectResponse(url="/settings?error=Cannot+delete+self", status_code=303)
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with aiosqlite.connect(get_db_path()) as db:
         # Prevent deleting the last admin
         cursor = await db.execute('SELECT COUNT(*) FROM users WHERE is_admin = 1')
         admin_count = (await cursor.fetchone())[0]

@@ -2,6 +2,7 @@
 DROP TABLE IF EXISTS coffee;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS cups;
+DROP TABLE IF EXISTS sessions;
 
 -- Create users table for user settings and authentication
 CREATE TABLE users (
@@ -32,11 +33,19 @@ CREATE TABLE coffee (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
+-- Create sessions table for session management
+CREATE TABLE IF NOT EXISTS sessions (
+    session_id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    expires_at TEXT NOT NULL
+);
+
 -- Insert default admin user (password: admin, must change on first login)
 INSERT INTO users (id, username, password_hash, is_admin, must_change_password) VALUES (
     '00000000-0000-0000-0000-000000000000',
     'admin',
-    '$2b$12$2tL2zP9YzrZMdixP4.kVKusIAbL.NQ9n8fG5kxC0o5ElxSTWS2uqy',
+    '$2b$12$ovQIfjnEuhQAGAOE7JCbf.bfQRGAJxl5KkqYyvXxMIVS3bxf5P6vW',
     1,
     1
 );
