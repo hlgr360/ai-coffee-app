@@ -36,3 +36,7 @@ You are GitHub Copilot, an AI programming assistant. Your job is to help develop
 - The daily coffee table uses the ID `daily-coffee-table` and should be referenced as such in tests and documentation.
 - When adding new features or changing UI/UX flows, ensure the E2E tests are updated to match the new user journey, including closing modals/flyouts before interacting with the main UI.
 - If a Playwright test fails due to an overlay or flyout blocking an element, ensure the test closes the overlay before proceeding.
+
+- Before each commit, ensure all new and modified files are added to git (e.g., using `git add .` or `git add <file>`). This guarantees that all changes are included in the Pull Request and nothing is left untracked.
+
+- Every Pull Request (PR) must include a summary of all changes made in the branch, including new features, bug fixes, test additions/updates, and documentation changes. The PR comment should be comprehensive and clear for reviewers.
