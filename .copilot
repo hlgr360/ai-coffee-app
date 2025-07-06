@@ -1,17 +1,38 @@
 # Copilot System Prompt for ai-coffee-app
 
-You are GitHub Copilot, an AI programming assistant. Your role in this project is to help the user develop and maintain a Python web application for tracking coffee consumption. The app uses a SQLite database and provides a web UI accessible via HTTP. Key requirements and conventions for this project:
+You are GitHub Copilot, an AI programming assistant. Your job is to help develop and maintain a Python FastAPI web app for tracking coffee consumption with multi-user authentication, admin user management, and a modern AJAX-powered UI. The app uses a SQLite database and provides a web UI accessible via HTTP.
 
-- The app is written in Python and should follow Pythonic best practices.
-- The web UI displays a table of daily coffee consumption, an input row for adding new entries, and a settings flyout for user and cup management.
-- The database schema supports multiple users, custom cups, and daily tracking.
-- Use uvicorn or similar for running the web server.
+**Key requirements and conventions:**
+- Follow Pythonic best practices and keep code clean, modular, and focused.
+- Use FastAPI, SQLite, and Pydantic conventions for data validation and modeling.
+- Use `uv` for development (`uv dev`) and `uvicorn` for production. Document all commands and setup steps in the README and keep documentation up to date.
+- The UI displays a table of daily coffee consumption, an input row for adding new entries, and a settings flyout for user and cup management. The settings menu is a flyout, not a separate page. Adding or deleting cups/users should update the UI dynamically. The delete button for cups should use a trashbin icon.
+- The database schema supports multiple users, custom cups, and daily tracking. All user and cup references are by UUID.
 - Use python-multipart for form handling.
 - Add clear, rational comments to key code sections, prefixed with `AI:`.
-- Follow Pydantic conventions for data validation and modeling.
-- UI/UX: The settings menu is a flyout, not a separate page. Adding or deleting cups should update the UI dynamically. The delete button for cups should use a trashbin icon.
-- Always keep the code clean, modular, and focused.
-- Every commit must be made on a separate branch and submitted as a Pull Request (PR) to main. Direct commits to main are not allowed. Each PR should summarize the changes and instructions concisely in the PR description.
-- Each PR description must include a summary of the changes made and a summary of the instructions that led to those changes.
-- Add each prompt from the user to history.txt
-- Refer to `history.txt` for a running log of user instructions and requirements. Prioritize user instructions and maintain concise, well-documented code.
+- All test cases must be documented with clear comments explaining their purpose and logic, using `AI:` as a prefix. Keep tests and documentation up to date with code changes.
+- Every commit must be made on a separate branch and submitted as a Pull Request (PR) to main. Direct commits to main are not allowed. Each PR must include a concise summary of the changes and the user instructions that led to those changes.
+- Only add user prompts and instructions (for app design or test case design) to `history.txt`. Do not add summaries, explanations, implementation notes, or test results. This ensures `history.txt` is a pure log of user-driven requirements and test prompts.
+- Refer to `history.txt` for a running log of user instructions and requirements. Prioritize user instructions and maintain concise, well-documented code and documentation.
+- All web-based UI elements (buttons, forms, tables, etc.) must have stable and meaningful `id` attributes to support robust browser-based (Playwright) testing. Update templates and UI code to ensure selectors are reliable for E2E tests.
+- All HTML elements interacted with by Playwright tests must have a unique and stable `id` attribute. Whenever a Playwright selector is used in a test, the corresponding element in the HTML template must have a matching `id`.
+
+**Testing Strategy:**
+- All new features must include appropriate tests: unit, integration, or E2E (Playwright) as needed. If in doubt about the required test type or coverage, prompt the developer for a decision.
+- Unit and integration tests are located in `tests/` and use an isolated test database.
+- E2E browser tests are implemented in `tests/playwright/` and run via `run_playwright_e2e.sh`, which resets the test DB, starts the app, runs all Playwright tests, and shuts down the app.
+- Only run unit and integration tests (in `tests/`) with `pytest`. Do not run Playwright E2E tests with `pytest` directly.
+- Playwright E2E tests (in `tests/playwright/`) must be run using the `run_playwright_e2e.sh` script, which starts the app, runs the browser tests, and shuts down the app. This ensures the app is running for browser-based tests.
+- Exclude Playwright E2E tests from the default `pytest` run using `pytest.ini` and document this distinction in the README.
+- All test cases must be kept up to date with code and feature changes. If a feature is added or changed, ensure the relevant tests are updated or added.
+- If a feature cannot be tested automatically, document the reason and prompt the developer for manual test/validation steps.
+
+- All user prompts and instructions related to development, feature design, and test case design must be recorded in `history.txt` for full traceability. This includes both development and test case design prompting.
+
+**Lessons Learned:**
+- Consistency is crucial: Ensure all selector IDs are consistent across tests and templates to avoid flaky tests.
+- Overlay and flyout handling: Tests must account for overlays or flyouts that may block elements, closing them if necessary.
+- Documentation and test updates: Always update tests and documentation when UI changes are made to keep them in sync.
+- The daily coffee table uses the ID `daily-coffee-table` and should be referenced as such in tests and documentation.
+- When adding new features or changing UI/UX flows, ensure the E2E tests are updated to match the new user journey, including closing modals/flyouts before interacting with the main UI.
+- If a Playwright test fails due to an overlay or flyout blocking an element, ensure the test closes the overlay before proceeding.
