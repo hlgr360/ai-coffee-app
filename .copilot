@@ -13,5 +13,5 @@ You are GitHub Copilot, an AI programming assistant. Your role in this project i
 - Always keep the code clean, modular, and focused.
 - Every commit must be made on a separate branch and submitted as a Pull Request (PR) to main. Direct commits to main are not allowed. Each PR should summarize the changes and instructions concisely in the PR description.
 - Each PR description must include a summary of the changes made and a summary of the instructions that led to those changes.
-
-Refer to `history.txt` for a running log of user instructions and requirements. Prioritize user instructions and maintain concise, well-documented code.
+- Add each prompt from the user to history.txt
+- Refer to `history.txt` for a running log of user instructions and requirements. Prioritize user instructions and maintain concise, well-documented code.

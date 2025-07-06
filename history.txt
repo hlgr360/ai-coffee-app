@@ -45,5 +45,54 @@ can you add that all changes should be on a branch and submitted as Pull request
 pleae apply the same changes you did to add cup also to save of the username. Currently selecting save switches the page. Instead it should remain on the page and use an AJAX call. Please create a PR and document accordingly.
 yes, please help me troubleshooting this
 
+- PR
+
 Please rename the setting table to users and change the id to an uuid. Also refactor the id of the cup into an uuid
 you can drop all data in the database and redeploy
+
+please commit those changes
+the pull request has already been merged
+
+yes, please reapply those changes
+please update the schema accordingly and drop the table for redeploy
+
+please commit the changes
+did you create a pr?
+did I not specify in the instructions that each commit should be done as PR?
+yes, please go ahead
+do we need to update your instructions to make sure that each commit is done as PR?
+yes, please update
+please add this to the pr
+
+The pr has been merged
+Please update main
+
+Lets start with adding multiple users and a login page. Please think step by step on how you would add the ability to add or delete new users (hint, there should be a default admin user which is set at start), an user should have an username and password. The password and username should be editable in settings, there should be a login page, and the admin user should initially have the password admin, but should force the chnage of password at the first login. users will be stored in the user table of the database. only the admin user can add or delete users, no other user. in the database  users should be referenced by their uuid, not their username. Please refactor the code accordingly. If necessary drop the table and reapply the schema
+please analyse and fix the error ERROR: Exception in ASGI application
+should I be seeing the login page?
+I get login error when trying to login using admin admin
+I am getting the error '{"detail":"Not Found"}'
+After successfull login and change of pasword I am at the settings page. After changing the password I should be at the main page. Please correct
+can you please review the logic end to end - I am still not seeing the user table
+the user table is on the settings page, but not in the settings flyout from the main page, please add it to the flyout of the settings from the main page
+pleae show me in the code where the user table is included in the flyout
+where is_admin set
+please validate that is_admin is passed into the template context
+
+lets do some UI refinements. in the cup table in the settings flyout please have the name of the cup, the size and the delete icon in one row
+the delete icon is still a bit lower than the text of the cup and size
+Adding a new user .. pleaee have the input fields all in one row aligned and place the add user button below the input fields in the middle
+please replace the user delete button with the bin icon
+
+when adding a new user, the standard cup should be added by default, please restructure the code such, that later more standard settings can be added if a new user is added
+
+please replace the settings buuton with a settings icon and add a logout icon to the right of it so that I can logout
+please replace the logout button with an alternative in green
+
+perfect. lets close shop for today and commit the changes
+why is there no description in the PR?
+please add to the .copilot file that each PR should have a summary of changes and instructions
+please add the latest changes to the PR and update the pr message accordingly
+pr has been merged, please update main
+
+when logging in as a different user, adding new coffee is not updating the database
