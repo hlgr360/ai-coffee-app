@@ -113,7 +113,3 @@ please add to the .copilot system prompt that all web based outputs should have 
 after password change, the test should explicitly open the settings flyout (by clicking the settings icon) before waiting for #user-management-table.
 please update the password change form to include both password fields and that both fields match before submitting
 please rerun the playwrite test
-- Updated Playwright E2E test selectors to match actual HTML element IDs (e.g., daily-coffee-table).
-- Ensured tests close overlays/flyouts before interacting with main UI elements to avoid click interception errors.
-- Documented the importance of keeping selectors, tests, and documentation in sync with UI changes.
-- Added guidance to .copilot and README.md about selector consistency and overlay handling.
