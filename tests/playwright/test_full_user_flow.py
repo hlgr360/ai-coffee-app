@@ -35,7 +35,13 @@ def test_full_user_flow():
 
         # Explicitly open settings flyout after password change
         page.click('#settings-icon')
-        page.wait_for_selector('#user-management-table', timeout=3000)
+        # Print the flyout HTML for debugging
+        page.wait_for_selector('#settings-flyout', timeout=3000)
+        flyout_html = page.inner_html('#settings-flyout')
+        print('FLYOUT HTML:', flyout_html)
+        # Wait for the user management table and at least one user row (admin) to appear
+        page.wait_for_selector('#user-management-table', timeout=5000)
+        page.wait_for_selector('#users-table-body tr', timeout=5000)
 
         # Add test user (not admin)
         page.fill('input#new-username', "testuser")

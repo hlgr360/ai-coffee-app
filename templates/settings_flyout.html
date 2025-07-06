@@ -1,4 +1,10 @@
-<h1>Settings</h1>
+<div style="display:flex;justify-content:flex-end;align-items:center;margin-bottom:1em;gap:0.5em;">
+  <button id="close-settings-btn" onclick="closeSettings()" class="icon-btn" title="Close" style="background:transparent;border:none;cursor:pointer;padding:0.4em;display:flex;align-items:center;justify-content:center;">
+      <!-- X (close) icon -->
+      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24"><path fill="#e53935" d="M18.3 5.71a1 1 0 0 0-1.41 0L12 10.59 7.11 5.7A1 1 0 0 0 5.7 7.11L10.59 12l-4.89 4.89a1 1 0 1 0 1.41 1.41L12 13.41l4.89 4.89a1 1 0 0 0 1.41-1.41L13.41 12l4.89-4.89a1 1 0 0 0 0-1.4z"/></svg>
+  </button>
+</div>
+<h1 style="margin:0;text-align:center;">Settings</h1>
 <form id="username-form" onsubmit="return saveUsername(event)" style="margin-bottom:2em;">
     <label for="username">Username:</label>
     <input type="text" id="username" name="username" value="{{ username }}" required style="margin-left:1em;">
@@ -40,4 +46,3 @@
     </tfoot>
 </table>
 {% endif %}
-<button id="close-settings-btn" onclick="closeSettings()" style="margin-top:2em;">Close</button>

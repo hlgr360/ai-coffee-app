@@ -7,12 +7,16 @@ async function openSettings() {
     if (resp.ok) {
         const html = await resp.text();
         flyout.innerHTML = `
-            <div id="settings-flyout-modal" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.3);z-index:1000;display:flex;align-items:center;justify-content:center;">
-                <div style="background:#fff;padding:2em;max-width:700px;width:100%;border-radius:8px;position:relative;max-height:90vh;overflow:auto;">
+            <div id="settings-flyout-modal" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.6);backdrop-filter:blur(2px);z-index:1000;display:flex;align-items:center;justify-content:center;">
+                <div id="settings-flyout-content" style="background:#fff;padding:2em;max-width:700px;width:100%;border-radius:8px;position:relative;max-height:90vh;overflow:auto;">
                     ${html}
                 </div>
             </div>`;
         flyout.style.display = 'block';
+        // Trap clicks outside the modal to close it
+        document.getElementById('settings-flyout-modal').onclick = function(e) {
+            if (e.target === this) closeSettings();
+        };
         // Re-bind event handlers and update tables for dynamic content
         if (document.getElementById('add-user-btn')) {
             document.getElementById('add-user-btn').onclick = addUser;

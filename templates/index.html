@@ -27,7 +27,8 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24"><path fill="#4caf50" d="M19.14,12.94c0-.32,0-.65,0-1s0-.68,0-1l2.11-1.65a.5.5,0,0,0,.12-.65l-2-3.46a.5.5,0,0,0-.61-.22l-2.49,1a7,7,0,0,0-1.7-1l-.38-2.65A.5.5,0,0,0,13,2H11a.5.5,0,0,0-.5.42l-.38,2.65a7,7,0,0,0-1.7,1l-2.49-1a.5.5,0,0,0-.61.22l-2,3.46a.5.5,0,0,0,.12.65L4.86,10c0,.32,0,.65,0,1s0,.68,0,1L2.75,13.65a.5.5,0,0,0-.12.65l2,3.46a.5.5,0,0,0,.61.22l2.49-1a7,7,0,0,0,1.7,1l.38,2.65A.5.5,0,0,0,11,22h2a.5.5,0,0,0,.5-.42l.38-2.65a7,7,0,0,0,1.7-1l2.49,1a.5.5,0,0,0,.61-.22l2-3.46a.5.5,0,0,0-.12-.65ZM12,15.5A3.5,3.5,0,1,1,15.5,12,3.5,3.5,0,0,1,12,15.5Z"/></svg>
         </button>
         <a id="logout-icon" href="/logout" title="Logout" class="icon-btn" style="background:transparent;border:none;cursor:pointer;padding:0.4em;display:flex;align-items:center;justify-content:center;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24"><path fill="#43a047" d="M16 13v-2H7V8l-5 4 5 4v-3h9zm3-10H5c-1.1 0-2 .9-2 2v6h2V5h14v14H5v-6H3v6c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+            <!-- X (close) icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24"><path fill="#e53935" d="M18.3 5.71a1 1 0 0 0-1.41 0L12 10.59 7.11 5.7A1 1 0 0 0 5.7 7.11L10.59 12l-4.89 4.89a1 1 0 1 0 1.41 1.41L12 13.41l4.89 4.89a1 1 0 0 0 1.41-1.41L13.41 12l4.89-4.89a1 1 0 0 0 0-1.4z"/></svg>
         </a>
     </div>
     <h1>Coffee Tracker</h1>
@@ -65,7 +66,7 @@
             </tr>
         </tfoot>
     </table>
-    <div id="settings-flyout" style="display:none;"></div>
+    <div id="settings-flyout" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:1000;"></div>
 </div>
 <script src="/static/main.js"></script>
 </body>

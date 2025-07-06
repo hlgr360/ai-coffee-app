@@ -126,9 +126,7 @@ async def settings(request: Request, session_id: Optional[str] = Cookie(None)):
     cups = await get_cups(session_user["id"])
     users = await get_all_users() if session_user["is_admin"] else []
     ajax_header = request.headers.get("x-requested-with")
-    print(f"/settings called, X-Requested-With: {ajax_header}")
     if ajax_header == "XMLHttpRequest":
-        print("Returning settings_flyout.html (AJAX)")
         return templates.TemplateResponse("settings_flyout.html", {
             "request": request,
             "username": session_user["username"],
@@ -136,7 +134,6 @@ async def settings(request: Request, session_id: Optional[str] = Cookie(None)):
             "is_admin": session_user["is_admin"],
             "users": users
         })
-    print("Returning settings.html (full page)")
     return templates.TemplateResponse("settings.html", {
         "request": request,
         "username": session_user["username"],
