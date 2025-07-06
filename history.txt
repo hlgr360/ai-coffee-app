@@ -42,7 +42,7 @@ can you add that all changes should be on a branch and submitted as Pull request
 
 --- milestone 1
 
-pleae apply the same changes you did to add cup also to save of the username. Currently selecting save switches the page. Instead it should remain on the page and use an AJAX call. Please create a PR and document accordingly.
+pleae apply the same changes you did to add cup also to save of the username. Currently selecting save switches the page. Instead, it should remain on the page and use an AJAX call. Please create a PR and document accordingly.
 yes, please help me troubleshooting this
 
 - PR
@@ -67,7 +67,7 @@ please add this to the pr
 The pr has been merged
 Please update main
 
-Lets start with adding multiple users and a login page. Please think step by step on how you would add the ability to add or delete new users (hint, there should be a default admin user which is set at start), an user should have an username and password. The password and username should be editable in settings, there should be a login page, and the admin user should initially have the password admin, but should force the chnage of password at the first login. users will be stored in the user table of the database. only the admin user can add or delete users, no other user. in the database  users should be referenced by their uuid, not their username. Please refactor the code accordingly. If necessary drop the table and reapply the schema
+Lets start with adding multiple users and a login page. Please think step by step on how you would add or delete new users (hint, there should be a default admin user which is set at start), an user should have an username and password. The password and username should be editable in settings, there should be a login page, and the admin user should initially have the password admin, but should force the chnage of password at the first login. users will be stored in the user table of the database. only the admin user can add or delete users, no other user. in the database  users should be referenced by their uuid, not their username. Please refactor the code accordingly. If necessary drop the table and reapply the schema
 please analyse and fix the error ERROR: Exception in ASGI application
 should I be seeing the login page?
 I get login error when trying to login using admin admin
@@ -96,3 +96,24 @@ please add the latest changes to the PR and update the pr message accordingly
 pr has been merged, please update main
 
 when logging in as a different user, adding new coffee is not updating the database
+i would like you to add each new prompt to the history.txt file in the project. I have added in .copilot. Is that sufficient?
+
+yes
+ok, lets impplement the test plan as you laid out
+go ahead, but is the app running in the background?
+go ahea
+please add the test coverage described in your test plan
+yes, go ahead
+yes, please go ahead and inspect the redirect logic
+analyse the session handling
+Yes, go ahead and clean up expired sessions on login
+please summarize the testing strategy we have implemented so far
+please add a summary and any update to the readme file. Pleasde revise the .copilot file to include the testing strategy and prompt that for each new feature the appropriate test is being added. if in doubt prompt the developer for a decision.
+please add to the .copilot system prompt that all web based outputs should have proper ids for browser based testing
+after password change, the test should explicitly open the settings flyout (by clicking the settings icon) before waiting for #user-management-table.
+please update the password change form to include both password fields and that both fields match before submitting
+please rerun the playwrite test
+- Updated Playwright E2E test selectors to match actual HTML element IDs (e.g., daily-coffee-table).
+- Ensured tests close overlays/flyouts before interacting with main UI elements to avoid click interception errors.
+- Documented the importance of keeping selectors, tests, and documentation in sync with UI changes.
+- Added guidance to .copilot and README.md about selector consistency and overlay handling.
