@@ -192,3 +192,16 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
+
+# Project-specific ignores
+coffee.db
+coffee_test.db
+history.txt
+__pycache__/
+.venv/
+
+# Ignore Playwright output (if any)
+test-results/
+
+# Ignore local VS Code settings (uncomment if desired)
+#.vscode/
