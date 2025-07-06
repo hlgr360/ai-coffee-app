@@ -39,4 +39,6 @@ You are GitHub Copilot, an AI programming assistant. Your job is to help develop
 
 - Before each commit, ensure all new and modified files are added to git (e.g., using `git add .` or `git add <file>`). This guarantees that all changes are included in the Pull Request and nothing is left untracked.
 
+- Before each Pull Request (PR), ensure that all test cases (unit, integration, and Playwright E2E) are run and pass. This includes running `pytest` for unit/integration tests and `./run_playwright_e2e.sh` for E2E tests. Do not open a PR unless all tests pass.
+
 - Every Pull Request (PR) must include a summary of all changes made in the branch, including new features, bug fixes, test additions/updates, and documentation changes. The PR comment should be comprehensive and clear for reviewers.
