@@ -1,0 +1,28 @@
+[project]
+name = "ai-coffee-app"
+version = "0.1.0"
+description = "A FastAPI web app for tracking coffee consumption with multi-user authentication, admin user management, and a modern AJAX-powered UI."
+authors = ["Your Name <your@email.com>"]
+requires-python = ">=3.10"
+
+[project.optional-dependencies]
+dev = [
+    "fastapi",
+    "uvicorn[standard]",
+    "aiosqlite",
+    "jinja2",
+    "python-multipart",
+    "bcrypt",
+    "itsdangerous",
+    "pytest",
+    "pytest-asyncio",
+    "pytest-cov",
+    "playwright",
+]
+
+[tool.pytest.ini_options]
+addopts = "--maxfail=1 --disable-warnings -q"
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"

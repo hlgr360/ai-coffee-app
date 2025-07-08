@@ -113,3 +113,5 @@ please add to the .copilot system prompt that all web based outputs should have 
 after password change, the test should explicitly open the settings flyout (by clicking the settings icon) before waiting for #user-management-table.
 please update the password change form to include both password fields and that both fields match before submitting
 please rerun the playwrite test
+please remove the ability to delete the last admin user. there always should be at least one admit user
+please match this logic in the user setting page by disabling the delete button for the admin user if only one admin user exists

@@ -66,14 +66,17 @@ async function updateUsersTable() {
     const resp = await fetch('/api/users');
     if (!resp.ok) return;
     const data = await resp.json();
+    const adminCount = data.users.filter(u => u.is_admin).length;
     const tbody = document.getElementById('users-table-body');
     tbody.innerHTML = '';
     if (data.users.length === 0) {
         tbody.innerHTML = '<tr><td colspan="3">No users found.</td></tr>';
     } else {
         for (const user of data.users) {
+            const isLastAdmin = user.is_admin && adminCount === 1;
+            const deleteBtn = `<button onclick=\"deleteUser('${user.id}')\" style=\"background:#e53935;color:#fff;border:none;border-radius:4px;padding:0.3em 0.8em;cursor:pointer;\" ${isLastAdmin ? 'disabled title="Cannot delete last admin"' : ''}>Delete</button>`;
             const tr = document.createElement('tr');
-            tr.innerHTML = `<td>${user.username}</td><td>${user.is_admin ? 'Yes' : 'No'}</td><td><button onclick=\"deleteUser('${user.id}')\" style=\"background:#e53935;color:#fff;border:none;border-radius:4px;padding:0.3em 0.8em;cursor:pointer;\">Delete</button></td>`;
+            tr.innerHTML = `<td>${user.username}</td><td>${user.is_admin ? 'Yes' : 'No'}</td><td>${deleteBtn}</td>`;
             tbody.appendChild(tr);
         }
     }
@@ -103,8 +106,16 @@ async function deleteCup(id) {
     if (resp.ok) updateCupsTable();
 }
 async function deleteUser(id) {
-    const resp = await fetch(`/api/users/${id}`, { method: 'DELETE' });
-    if (resp.ok) updateUsersTable();
+    // Use a form POST to /settings/users/delete, matching backend
+    const formData = new FormData();
+    formData.append('user_id', id);
+    const resp = await fetch('/settings/users/delete', {
+        method: 'POST',
+        body: formData
+    });
+    if (resp.redirected || resp.ok) {
+        updateUsersTable();
+    }
 }
 // Password change validation
 function validatePasswordForm() {

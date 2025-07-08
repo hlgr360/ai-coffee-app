@@ -340,17 +340,20 @@ async def delete_user(request: Request, user_id: str = Form(...), session_id: Op
     session_user = await get_current_session_user(session_id)
     if not session_user or not session_user["is_admin"]:
         raise HTTPException(status_code=403, detail="Admin only")
-    # Prevent deleting the last admin or self
+    # AI: Prevent deleting the last admin user. There must always be at least one admin in the system.
     if user_id == session_user["id"]:
         return RedirectResponse(url="/settings?error=Cannot+delete+self", status_code=303)
     async with aiosqlite.connect(get_db_path()) as db:
-        # Prevent deleting the last admin
+        # Count current admins
         cursor = await db.execute('SELECT COUNT(*) FROM users WHERE is_admin = 1')
         admin_count = (await cursor.fetchone())[0]
+        # Check if the user to delete is an admin
         cursor = await db.execute('SELECT is_admin FROM users WHERE id = ?', (user_id,))
         row = await cursor.fetchone()
-        if row and row[0] == 1 and admin_count <= 1:
-            return RedirectResponse(url="/settings?error=Cannot+delete+last+admin", status_code=303)
+        if row and row[0] == 1:
+            if admin_count <= 1:
+                # Block deletion if this is the last admin
+                return RedirectResponse(url="/settings?error=Cannot+delete+the+last+admin+user", status_code=303)
         await db.execute('DELETE FROM users WHERE id = ?', (user_id,))
         await db.commit()
     return RedirectResponse(url="/settings", status_code=303)
