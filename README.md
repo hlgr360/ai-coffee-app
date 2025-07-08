@@ -31,6 +31,22 @@ source .venv/bin/activate
 pip install -r requirements-test.txt
 ```
 
+### Using `uv` for Dependency Management
+
+If you use [`uv`](https://github.com/astral-sh/uv) (recommended for fast installs and modern Python workflows):
+
+#### Install all dependencies (including dev) from `pyproject.toml`:
+```bash
+uv pip install -e .[dev]
+```
+
+#### Or, install from requirements file:
+```bash
+uv pip install -r requirements-test.txt
+```
+
+This will set up your environment for development, testing, and running the app.
+
 ### 2. Initialize the Database
 
 #### For development or runtime (creates/overwrites `coffee.db`):
