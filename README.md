@@ -1,6 +1,65 @@
 # ai-coffee-app
 Vibe coded AI Coffee App
 
+## Quickstart: Initialize Environment (Dev, Test, Prod)
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/hlgr360/ai-coffee-app.git
+   cd ai-coffee-app
+   ```
+
+2. **Create and activate a Python virtual environment (recommended):**
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate
+   ```
+
+3. **Install dependencies:**
+   - For pip users:
+     ```bash
+     pip install -r requirements.txt
+     pip install -r requirements-test.txt
+     ```
+   - For uv users (recommended):
+     ```bash
+     uv pip install -e .[dev]
+     # or
+     uv pip install -r requirements-test.txt
+     ```
+
+4. **Initialize the database:**
+   ```bash
+   rm -f coffee.db && sqlite3 coffee.db < init_db.sql
+   ```
+
+5. **Run the app:**
+   - Development (live reload):
+     ```bash
+     uv dev
+     ```
+   - Production:
+     ```bash
+     uvicorn app:app --host 0.0.0.0 --port 8000
+     ```
+
+6. **Run tests:**
+   - Unit/integration:
+     ```bash
+     pytest --disable-warnings -v
+     ```
+   - End-to-end (browser):
+     ```bash
+     ./run_playwright_e2e.sh
+     ```
+
+7. **MCP/Context7/Playwright configuration:**
+   - MCP server config is in `.vscode/mcp.json` (for advanced workflows)
+   - Playwright MCP can be started with:
+     ```bash
+     npx @playwright/mcp@latest
+     ```
+
 ## Testing Strategy (Summary)
 
 - **Unit & Integration Tests:**
